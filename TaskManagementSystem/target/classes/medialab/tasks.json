@@ -1,0 +1,38 @@
+{
+  "tasks" : [ {
+    "id" : 3,
+    "title" : "crypto",
+    "description" : "series #2",
+    "category" : "Other",
+    "priority" : "Default",
+    "deadline" : [ 2024, 12, 3 ],
+    "status" : "Delayed"
+  }, {
+    "id" : 5,
+    "title" : "oslab",
+    "description" : "eor",
+    "category" : "NTUA",
+    "priority" : "Default",
+    "deadline" : [ 2022, 12, 7 ],
+    "status" : "Completed"
+  }, {
+    "id" : 6,
+    "title" : "crypto",
+    "description" : "jkkjk",
+    "category" : "Other",
+    "priority" : "Default",
+    "deadline" : [ 2025, 12, 7 ],
+    "status" : "Postponed"
+  }, {
+    "id" : 7,
+    "title" : "ghhg",
+    "description" : "fgdg",
+    "category" : "Other",
+    "priority" : "Default",
+    "deadline" : [ 2025, 3, 5 ],
+    "status" : "Open"
+  } ],
+  "categories" : [ "Other", "NTUA" ],
+  "priorities" : [ "Default", "High", "Low" ],
+  "reminders" : null
+}
