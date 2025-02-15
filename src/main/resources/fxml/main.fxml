@@ -2,6 +2,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import java.net.URL?>
 <BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="org.example.view.MainController" style="-fx-background-color: #e6f7ff;">
     <!-- Top Section -->
     <top>
@@ -19,6 +20,10 @@
     <!-- Center Section -->
     <center>
         <TabPane style="-fx-background-color: #e6f7ff; -fx-border-color: transparent; -fx-tab-header-background: #cce7ff; -fx-tab-header-border-color: transparent; -fx-padding: 0;">
+            <!-- Inline stylesheet defined via data URI -->
+            <stylesheets>
+                <URL value="@../tabstyles/tabstyles.css"/>
+            </stylesheets>
             <tabs>
                 <!-- Task Management Tab -->
                 <Tab text="Task Management">
@@ -72,6 +77,8 @@
                 <!-- Reminders Tab -->
                 <Tab text="Reminders">
                     <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20; -fx-background-color: #e6f7ff;">
+                        <!-- Informational label -->
+                        <Label text="Note: Reminders can be added via the Task Management tab." style="-fx-text-fill: #003d99; -fx-font-size: 14px; -fx-font-weight: bold;"/>
                         <HBox spacing="10" alignment="CENTER">
                             <Button text="Edit Reminder" onAction="#handleEditReminder" style="-fx-background-color: #003d99; -fx-text-fill: white;"/>
                             <Button text="Delete Reminder" onAction="#handleDeleteReminder" style="-fx-background-color: #003d99; -fx-text-fill: white;"/>
@@ -79,6 +86,7 @@
                         <ListView fx:id="reminderListView" prefHeight="250" style="-fx-background-color: #ffffff; -fx-border-color: #003d99;"/>
                     </VBox>
                 </Tab>
+
 
 
 

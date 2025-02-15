@@ -1,0 +1,15 @@
+/* tabstyles.css */
+.tab-pane .tab-header-background {
+    -fx-background-color: #b3d0ff;
+}
+.tab-pane .tab {
+    -fx-background-color: #e6f7ff;
+}
+.tab-pane .tab-label {
+    -fx-text-fill: #003d99;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #003d99;
+}
