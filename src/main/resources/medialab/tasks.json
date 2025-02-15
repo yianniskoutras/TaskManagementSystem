@@ -28,7 +28,7 @@
     "reminders" : [ ]
   }, {
     "id" : 7,
-    "title" : "changed",
+    "title" : "again?",
     "description" : "fgdg",
     "category" : "Other",
     "priority" : "Default",
@@ -37,8 +37,8 @@
     "reminders" : [ {
       "id" : 1,
       "taskId" : 7,
-      "type" : "Custom",
-      "reminderDate" : [ 2025, 3, 1 ]
+      "type" : "1 day",
+      "reminderDate" : [ 2025, 3, 4 ]
     } ]
   } ],
   "categories" : [ "Other", "NTUA" ],

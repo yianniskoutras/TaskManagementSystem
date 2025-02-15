@@ -211,7 +211,7 @@ public class MainController {
 
 // Add listener to filter tasks based on selected category
         categoryFilterComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal.equalsIgnoreCase("All")) {
+            if(newVal == null || newVal.equalsIgnoreCase("All")) {
                 taskListView.getItems().setAll(taskManager.getAllTasks());
             } else {
                 taskListView.getItems().setAll(taskManager.getAllTasks().stream()
@@ -219,6 +219,7 @@ public class MainController {
                         .toList());
             }
         });
+
 
 
         // Enhanced reminder cell factory
@@ -633,6 +634,12 @@ public class MainController {
 
         if (taskManager.addCategory(category)) {
             categoryListView.getItems().setAll(taskManager.getCategories());
+            // Update the filter ComboBox:
+            List<String> filterOptions = new ArrayList<>();
+            filterOptions.add("All");
+            filterOptions.addAll(taskManager.getCategories());
+            categoryFilterComboBox.getItems().setAll(filterOptions);
+            categoryFilterComboBox.setValue("All");
         } else {
             showWarning("Duplicate Category", "This category already exists.");
         }
@@ -662,6 +669,13 @@ public class MainController {
         categoryListView.getItems().setAll(taskManager.getCategories());
         taskListView.getItems().setAll(taskManager.getAllTasks());
         updateTaskCounts();
+
+        // Refresh the filter ComboBox with an "All" option
+        List<String> filterOptions = new ArrayList<>();
+        filterOptions.add("All");
+        filterOptions.addAll(taskManager.getCategories());
+        categoryFilterComboBox.getItems().setAll(filterOptions);
+        categoryFilterComboBox.setValue("All");
     }
 
 
