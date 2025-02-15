@@ -198,6 +198,65 @@ public class MainController {
         // Populate the ListView with tasks
         taskListView.getItems().setAll(taskManager.getAllTasks());
 
+        // Enhanced reminder cell factory
+        reminderListView.setCellFactory(listView -> new ListCell<Reminder>() {
+            @Override
+            protected void updateItem(Reminder reminder, boolean empty) {
+                super.updateItem(reminder, empty);
+                if (empty || reminder == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    // Container with a gradient background and rounded borders
+                    HBox container = new HBox(10);
+                    container.setAlignment(Pos.CENTER_LEFT);
+                    container.setPadding(new Insets(10));
+                    container.setStyle("-fx-background-color: linear-gradient(to right, #f0f8ff, #e6f7ff); " +
+                            "-fx-border-color: #003d99; -fx-border-radius: 5; -fx-background-radius: 5;");
+
+                    VBox details = new VBox(5);
+                    Task associatedTask = taskManager.getAllTasks().stream()
+                            .filter(task -> task.getId() == reminder.getTaskId())
+                            .findFirst().orElse(null);
+                    String taskTitle = (associatedTask != null) ? associatedTask.getTitle() : "Unknown";
+                    // Task ID row
+                    HBox taskRow = new HBox(5);
+                    Label taskLabel = new Label("Task: ");
+                    taskLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #003d99;");
+                    Label taskTitleValue = new Label(taskTitle);
+                    taskTitleValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #6D7ED5FF;");
+                    taskRow.getChildren().addAll(taskLabel, taskTitleValue);
+
+                    // Type row
+                    HBox typeRow = new HBox(5);
+                    Label typeLabel = new Label("Type: ");
+                    typeLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #003d99;");
+                    Label typeValue = new Label(reminder.getType());
+                    typeValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #6D7ED5FF;");
+                    typeRow.getChildren().addAll(typeLabel, typeValue);
+
+                    // Date row
+                    HBox dateRow = new HBox(5);
+                    Label dateLabel = new Label("Date: ");
+                    dateLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #003d99;");
+                    Label dateValue = new Label(reminder.getReminderDate().toString());
+                    dateValue.setStyle("-fx-font-size: 14px; -fx-text-fill: #6D7ED5FF;");
+                    dateRow.getChildren().addAll(dateLabel, dateValue);
+
+                    details.getChildren().addAll(taskRow, typeRow, dateRow);
+
+                    Region spacer = new Region();
+                    HBox.setHgrow(spacer, Priority.ALWAYS);
+
+                    Label icon = new Label("⏰");
+                    icon.setStyle("-fx-font-size: 28px; -fx-text-fill: #003d99;");
+
+                    container.getChildren().addAll(details, spacer, icon);
+                    setGraphic(container);
+                }
+            }
+        });
+
         refreshRemindersList();
 
         // Update task-related statistics
@@ -889,6 +948,22 @@ public class MainController {
             }
         }
 
+        // Enhancement: Check that the reminder date is before the task's deadline.
+        if (reminderDate.compareTo(selectedTask.getDeadline()) >= 0) {
+            showWarning("Invalid Date", "The reminder date must be before the task deadline.");
+            return;
+        }
+
+        // Enhancement: Check for duplicate reminders (same date for same task)
+        if (selectedTask.getReminders() != null) {
+            for (Reminder existingReminder : selectedTask.getReminders()) {
+                if (existingReminder.getReminderDate().equals(reminderDate)) {
+                    showWarning("Duplicate Reminder", "A reminder for this date already exists for the selected task.");
+                    return;
+                }
+            }
+        }
+
         // 🔥 Ensure task has a reminders list before adding
         if (selectedTask.getReminders() == null) {
             selectedTask.setReminders(new ArrayList<>());
@@ -905,6 +980,7 @@ public class MainController {
         refreshRemindersList();
         showInformation("Reminder Set", "Reminder added for task: " + selectedTask.getTitle() + " on " + reminderDate);
     }
+
 
 
 

@@ -39,11 +39,6 @@
       "taskId" : 7,
       "type" : "1 day",
       "reminderDate" : [ 2025, 3, 4 ]
-    }, {
-      "id" : 2,
-      "taskId" : 7,
-      "type" : "1 day",
-      "reminderDate" : [ 2025, 3, 4 ]
     } ]
   } ],
   "categories" : [ "Other", "NTUA" ],
