@@ -838,6 +838,12 @@ public class MainController {
 
         // Show the dialog and wait for user input
         dialog.showAndWait().ifPresent(editedTask -> {
+            if ("Completed".equalsIgnoreCase(editedTask.getStatus())) {
+                // Remove all reminders from this task.
+                if (editedTask.getReminders() != null) {
+                    editedTask.getReminders().clear();
+                }
+            }
             taskManager.updateTask(
                     editedTask.getId(),
                     editedTask.getTitle(),
@@ -851,6 +857,7 @@ public class MainController {
             // Refresh UI
             taskListView.refresh();
             updateTaskCounts();
+            refreshRemindersList();
             showInformation("Task Updated", "The task has been successfully updated.");
         });
     }

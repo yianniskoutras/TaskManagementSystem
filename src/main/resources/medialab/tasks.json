@@ -28,12 +28,12 @@
     "reminders" : [ ]
   }, {
     "id" : 7,
-    "title" : "ghhg",
+    "title" : "changed",
     "description" : "fgdg",
     "category" : "Other",
     "priority" : "Default",
     "deadline" : [ 2025, 3, 5 ],
-    "status" : "Open",
+    "status" : "In Progress",
     "reminders" : [ {
       "id" : 1,
       "taskId" : 7,
