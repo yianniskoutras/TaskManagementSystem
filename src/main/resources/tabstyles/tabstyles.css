@@ -13,3 +13,16 @@
 .tab-pane .tab:selected .tab-label {
     -fx-text-fill: #003d99;
 }
+
+.combo-box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #003d99;
+    -fx-border-radius: 5;
+    -fx-text-fill: #003d99;
+}
+
+.combo-box .list-cell {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #003d99;
+}
+

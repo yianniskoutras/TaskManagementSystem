@@ -53,6 +53,9 @@ public class MainController {
     @FXML
     private ListView<Reminder> reminderListView;
 
+    @FXML
+    private ComboBox<String> categoryFilterComboBox;
+
 
     /**
      * Initialize the UI and load data.
@@ -131,7 +134,7 @@ public class MainController {
                     } else if ("Delayed".equalsIgnoreCase(task.getStatus())) {
                         statusValueLabel.setStyle("-fx-text-fill: red; -fx-font-size: 14px;"); // Red for "Delayed"
                     } else if ("Postponed".equalsIgnoreCase(task.getStatus())) {
-                        statusValueLabel.setStyle("-fx-text-fill: #ff9100; -fx-font-size: 14px;"); // Orange for "Postpoend"
+                        statusValueLabel.setStyle("-fx-text-fill: #ff9100; -fx-font-size: 14px;"); // Orange for "Postponed"
                     }
                         else{
                             statusValueLabel.setStyle("-fx-text-fill: #6D7ED5FF; -fx-font-size: 14px;"); // Default light blue
@@ -197,6 +200,26 @@ public class MainController {
 
         // Populate the ListView with tasks
         taskListView.getItems().setAll(taskManager.getAllTasks());
+
+
+        // Populate filter ComboBox: add "All" plus all categories
+        List<String> filterOptions = new ArrayList<>();
+        filterOptions.add("All");
+        filterOptions.addAll(taskManager.getCategories());
+        categoryFilterComboBox.getItems().setAll(filterOptions);
+        categoryFilterComboBox.setValue("All");
+
+// Add listener to filter tasks based on selected category
+        categoryFilterComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.equalsIgnoreCase("All")) {
+                taskListView.getItems().setAll(taskManager.getAllTasks());
+            } else {
+                taskListView.getItems().setAll(taskManager.getAllTasks().stream()
+                        .filter(task -> task.getCategory().equalsIgnoreCase(newVal))
+                        .toList());
+            }
+        });
+
 
         // Enhanced reminder cell factory
         reminderListView.setCellFactory(listView -> new ListCell<Reminder>() {
@@ -275,8 +298,7 @@ public class MainController {
             // If deadline is before today and status is not already "Delayed", "Completed", or "Postponed"
             if (task.getDeadline().isBefore(today) &&
                     !task.getStatus().equalsIgnoreCase("Delayed") &&
-                    !task.getStatus().equalsIgnoreCase("Completed") &&
-                    !task.getStatus().equalsIgnoreCase("Postponed")) {
+                    !task.getStatus().equalsIgnoreCase("Completed")) {
 
                 task.setStatus("Delayed"); // Mark as delayed
                 taskUpdated = true;

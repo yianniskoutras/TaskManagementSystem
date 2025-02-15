@@ -28,22 +28,22 @@
                 <!-- Task Management Tab -->
                 <Tab text="Task Management">
                     <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20; -fx-background-color: #e6f7ff;">
+                        <!-- New filter row -->
+                        <HBox spacing="10" alignment="CENTER">
+                            <Label text="Filter by Category:" style="-fx-text-fill: #003d99; -fx-font-size: 14px;"/>
+                            <ComboBox fx:id="categoryFilterComboBox" prefWidth="200"/>
+                        </HBox>
                         <HBox spacing="10" alignment="CENTER">
                             <Button text="Add Task" onAction="#handleAddTask" style="-fx-background-color: #003d99; -fx-text-fill: white;"/>
                             <Button text="Edit Task" onAction="#handleEditTask" style="-fx-background-color: #003d99; -fx-text-fill: white;"/>
                             <Button text="Delete Task" onAction="#handleDeleteTask" style="-fx-background-color: #003d99; -fx-text-fill: white;"/>
                             <Button text="Set Reminder" onAction="#handleAddReminder" style="-fx-background-color: #00ffbb; -fx-text-fill: white;"/>
                         </HBox>
-
-
-                        <!-- Custom ListView for displaying tasks -->
-                        <ListView fx:id="taskListView" prefHeight="300" prefWidth="500" style="-fx-background-color: #ffffff; -fx-border-color: #003d99;">
-                            <items>
-                                <!-- Items will be dynamically loaded from the controller -->
-                            </items>
-                        </ListView>
+                        <!-- Task ListView -->
+                        <ListView fx:id="taskListView" prefHeight="300" prefWidth="500" style="-fx-background-color: #ffffff; -fx-border-color: #003d99;"/>
                     </VBox>
                 </Tab>
+
 
 
                 <!-- Category Management Tab -->
