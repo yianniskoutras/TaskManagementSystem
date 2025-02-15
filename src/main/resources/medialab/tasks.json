@@ -6,7 +6,8 @@
     "category" : "Other",
     "priority" : "Default",
     "deadline" : [ 2024, 12, 3 ],
-    "status" : "Delayed"
+    "status" : "Delayed",
+    "reminders" : [ ]
   }, {
     "id" : 5,
     "title" : "oslab",
@@ -14,7 +15,8 @@
     "category" : "NTUA",
     "priority" : "Default",
     "deadline" : [ 2022, 12, 7 ],
-    "status" : "Completed"
+    "status" : "Completed",
+    "reminders" : [ ]
   }, {
     "id" : 6,
     "title" : "crypto",
@@ -22,7 +24,8 @@
     "category" : "Other",
     "priority" : "Default",
     "deadline" : [ 2025, 12, 7 ],
-    "status" : "Postponed"
+    "status" : "Postponed",
+    "reminders" : [ ]
   }, {
     "id" : 7,
     "title" : "ghhg",
@@ -30,9 +33,20 @@
     "category" : "Other",
     "priority" : "Default",
     "deadline" : [ 2025, 3, 5 ],
-    "status" : "Open"
+    "status" : "Open",
+    "reminders" : [ {
+      "id" : 1,
+      "taskId" : 7,
+      "type" : "1 day",
+      "reminderDate" : [ 2025, 3, 4 ]
+    }, {
+      "id" : 2,
+      "taskId" : 7,
+      "type" : "1 day",
+      "reminderDate" : [ 2025, 3, 4 ]
+    } ]
   } ],
   "categories" : [ "Other", "NTUA" ],
   "priorities" : [ "Default", "High", "Low" ],
-  "reminders" : null
+  "reminders" : [ ]
 }

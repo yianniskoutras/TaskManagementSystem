@@ -3,8 +3,8 @@ package org.example.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.example.model.Task;
 import org.example.model.Reminder;
+import org.example.model.Task;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,56 +37,42 @@ public class JSONHandler {
             reminders = new ArrayList<>();
         }
 
-        // Constructor for initialization
+        // ✅ FIX: Constructor now includes reminders
         public DataWrapper(List<Task> tasks, List<String> categories, List<String> priorities, List<Reminder> reminders) {
             this.tasks = tasks;
             this.categories = categories;
             this.priorities = priorities;
-            this.reminders = reminders;
+            this.reminders = (reminders != null) ? reminders : new ArrayList<>();
         }
 
-        // Getters and setters
-        public List<Task> getTasks() {
-            return tasks;
-        }
-        public void setTasks(List<Task> tasks) {
-            this.tasks = tasks;
-        }
-        public List<String> getCategories() {
-            return categories;
-        }
-        public void setCategories(List<String> categories) {
-            this.categories = categories;
-        }
-        public List<String> getPriorities() {
-            return priorities;
-        }
-        public void setPriorities(List<String> priorities) {
-            this.priorities = priorities;
-        }
-        public List<Reminder> getReminders() {
-            return reminders;
-        }
-        public void setReminders(List<Reminder> reminders) {
-            this.reminders = reminders;
-        }
+        // ✅ FIX: Getters and Setters now inside DataWrapper
+        public List<Task> getTasks() { return tasks; }
+        public void setTasks(List<Task> tasks) { this.tasks = tasks; }
+
+        public List<String> getCategories() { return categories; }
+        public void setCategories(List<String> categories) { this.categories = categories; }
+
+        public List<String> getPriorities() { return priorities; }
+        public void setPriorities(List<String> priorities) { this.priorities = priorities; }
+
+        public List<Reminder> getReminders() { return reminders; }
+        public void setReminders(List<Reminder> reminders) { this.reminders = reminders; }
     }
 
     /**
      * Saves tasks, categories, priorities, and reminders to the JSON file.
-     *
-     * @param dataWrapper The wrapper containing all application data.
-     * @throws IOException if the file cannot be written.
      */
-    public static void saveData(DataWrapper dataWrapper) throws IOException {
-        ensureFileExists();
-        mapper.writeValue(new File(FILE_PATH), dataWrapper);
+    public static void saveData(DataWrapper dataWrapper) {
+        try {
+            ensureFileExists();
+            mapper.writeValue(new File(FILE_PATH), dataWrapper);
+        } catch (IOException e) {
+            System.err.println("Error saving data: " + e.getMessage());
+        }
     }
 
     /**
      * Loads tasks, categories, priorities, and reminders from the JSON file.
-     *
-     * @return A DataWrapper containing the loaded data.
      */
     public static DataWrapper loadData() {
         File file = new File(FILE_PATH);
@@ -102,8 +88,6 @@ public class JSONHandler {
 
     /**
      * Ensures that the file path and its parent directories exist.
-     *
-     * @throws IOException if the directories cannot be created.
      */
     private static void ensureFileExists() throws IOException {
         File file = new File(FILE_PATH);
@@ -111,7 +95,7 @@ public class JSONHandler {
             File parentDir = file.getParentFile();
             if (parentDir != null && !parentDir.exists()) {
                 if (!parentDir.mkdirs()) {
-                    throw new IOException("Failed to create parent directories for " + FILE_PATH);
+                    throw new IOException("Failed to create directories for " + FILE_PATH);
                 }
             }
             if (!file.createNewFile()) {

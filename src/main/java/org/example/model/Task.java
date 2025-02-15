@@ -1,6 +1,8 @@
 package org.example.model;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Task {
     private int id;
@@ -10,9 +12,11 @@ public class Task {
     private String priority;
     private LocalDate deadline;
     private String status;
+    private List<Reminder> reminders;
 
     // No-argument constructor
     public Task() {
+        this.reminders = new ArrayList<>();
     }
 
     public Task(int id, String title, String description, String category, String priority, LocalDate deadline) {
@@ -28,6 +32,7 @@ public class Task {
         } else {
             this.status = "Open"; // Default to "Open"
         }
+        this.reminders = new ArrayList<>();
     }
 
 
@@ -52,6 +57,18 @@ public class Task {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public List<Reminder> getReminders() {
+        if (reminders == null) {  //  FIX: If null, initialize it to an empty list
+            reminders = new ArrayList<>();
+        }
+        return reminders;
+    }
+
+    public void setReminders(List<Reminder> reminders) { this.reminders = reminders; }
+
+    public void addReminder(Reminder reminder) { reminders.add(reminder); }
+    public void removeReminder(int reminderId) { reminders.removeIf(r -> r.getId() == reminderId); }
 
     @Override
     public String toString() {

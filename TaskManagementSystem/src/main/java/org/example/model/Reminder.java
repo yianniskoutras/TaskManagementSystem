@@ -11,11 +11,17 @@ public class Reminder {
     private String type;         // Reminder type (e.g., "1 day", "1 week", "1 month", "Custom")
     private LocalDate reminderDate; // The actual reminder date
 
-    public Reminder(int id, int taskId, String type, LocalDate reminderDate) {
+    public Reminder() {
+    }
+
+    public Reminder(     @JsonProperty("id") int id,
+                         @JsonProperty("taskId") int taskId,
+                         @JsonProperty("type") String type,
+                         @JsonProperty("reminderDate") LocalDate reminderDate) {
         this.id = id;
         this.taskId = taskId;
         this.type = type;
-        this.reminderDate = reminderDate;
+        this.reminderDate = (reminderDate != null) ? reminderDate : LocalDate.now(); //  Set default date if null
     }
 
     // Getters and setters

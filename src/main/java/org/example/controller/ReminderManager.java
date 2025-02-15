@@ -2,128 +2,61 @@ package org.example.controller;
 
 import org.example.model.Reminder;
 import org.example.model.Task;
+import org.example.utils.JSONHandler;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
-/**
- * Manages reminders for tasks.
- */
 public class ReminderManager {
-    private List<Reminder> reminders;
-    private int nextReminderId = 1; // Counter for generating unique reminder IDs
+    private final TaskManager taskManager; // Reference to task manager
 
-    public ReminderManager() {
-        reminders = new ArrayList<>();
-        // Optionally, load reminders from JSON (see JSONHandler update below)
+    public ReminderManager(TaskManager taskManager) {
+        this.taskManager = taskManager;
     }
 
-    private int generateReminderId() {
-        return nextReminderId++;
-    }
-
-    /**
-     * Adds a reminder for the specified task.
-     * The reminder date is determined by the type:
-     * - "1 day": one day before the deadline.
-     * - "1 week": one week before the deadline.
-     * - "1 month": one month before the deadline.
-     * - "Custom": uses the provided customDate.
-     *
-     * Returns true if the reminder is successfully added.
-     */
     public boolean addReminder(Task task, String type, LocalDate customDate) {
-        // Do not allow reminders for completed tasks.
-        if ("Completed".equalsIgnoreCase(task.getStatus())) {
-            return false;
-        }
-        LocalDate deadline = task.getDeadline();
-        LocalDate reminderDate = null;
+        if (task == null) return false;
+
+        LocalDate reminderDate;
+
+        // Determine reminder date based on type
         switch (type.toLowerCase()) {
             case "1 day":
-                reminderDate = deadline.minusDays(1);
+                reminderDate = task.getDeadline().minusDays(1);
                 break;
             case "1 week":
-                reminderDate = deadline.minusWeeks(1);
+                reminderDate = task.getDeadline().minusWeeks(1);
                 break;
             case "1 month":
-                reminderDate = deadline.minusMonths(1);
+                reminderDate = task.getDeadline().minusMonths(1);
                 break;
             case "custom":
-                if (customDate == null) {
-                    return false;
-                }
                 reminderDate = customDate;
                 break;
             default:
-                return false;
+                return false; // Invalid type
         }
-        // Ensure the reminder date is before the deadline and not in the past.
-        if (reminderDate.isAfter(deadline) || reminderDate.isBefore(LocalDate.now())) {
+
+        // Ensure the reminderDate is valid
+        if (reminderDate == null || reminderDate.isBefore(LocalDate.now())) {
+            System.out.println("Invalid reminder date!");
             return false;
         }
-        Reminder reminder = new Reminder(generateReminderId(), task.getId(), type, reminderDate);
-        reminders.add(reminder);
+
+        // Generate a unique reminder ID
+        int newReminderId = taskManager.generateReminderId();
+
+        // Create and add the reminder
+        Reminder newReminder = new Reminder(newReminderId, task.getId(), type, reminderDate);
+        task.getReminders().add(newReminder);
+        taskManager.saveData(); // Save updated task list to JSON
+
         return true;
     }
 
-    /**
-     * Updates an existing reminder.
-     */
-    public boolean updateReminder(int reminderId, String newType, LocalDate customDate, Task task) {
-        for (Reminder r : reminders) {
-            if (r.getId() == reminderId) {
-                LocalDate deadline = task.getDeadline();
-                LocalDate newDate = null;
-                switch (newType.toLowerCase()) {
-                    case "1 day":
-                        newDate = deadline.minusDays(1);
-                        break;
-                    case "1 week":
-                        newDate = deadline.minusWeeks(1);
-                        break;
-                    case "1 month":
-                        newDate = deadline.minusMonths(1);
-                        break;
-                    case "custom":
-                        if (customDate == null) {
-                            return false;
-                        }
-                        newDate = customDate;
-                        break;
-                    default:
-                        return false;
-                }
-                if (newDate.isAfter(deadline) || newDate.isBefore(LocalDate.now())) {
-                    return false;
-                }
-                r.setType(newType);
-                r.setReminderDate(newDate);
-                return true;
-            }
-        }
-        return false;
-    }
 
-    /**
-     * Deletes a reminder by its ID.
-     */
-    public boolean deleteReminder(int reminderId) {
-        return reminders.removeIf(r -> r.getId() == reminderId);
-    }
-
-    /**
-     * Deletes all reminders associated with a given task.
-     */
-    public void deleteRemindersForTask(int taskId) {
-        reminders.removeIf(r -> r.getTaskId() == taskId);
-    }
-
-    /**
-     * Returns a list of all active reminders.
-     */
-    public List<Reminder> getAllReminders() {
-        return new ArrayList<>(reminders);
+    public boolean deleteReminder(Task task, int reminderId) {
+        task.removeReminder(reminderId);
+        taskManager.saveData();  // Save all tasks
+        return true;
     }
 }

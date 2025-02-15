@@ -7,6 +7,7 @@ import org.example.utils.JSONHandler;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class TaskManager {
     private List<Task> tasks;
@@ -25,7 +26,21 @@ public class TaskManager {
 
         // Initialize defaults if lists are empty
         initializeDefaults();
+
     }
+
+    /**
+     * Generates a unique ID for reminders.
+     */
+    public int generateReminderId() {
+        int maxId = tasks.stream()
+                .flatMap(task -> task.getReminders() != null ? task.getReminders().stream() : Stream.empty()) // ✅ FIX: Handle null safely
+                .mapToInt(Reminder::getId)
+                .max()
+                .orElse(0);
+        return maxId + 1;
+    }
+
 
     private void initializeDefaults() {
         if (categories.isEmpty()) {

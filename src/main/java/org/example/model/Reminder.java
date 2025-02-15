@@ -1,6 +1,8 @@
 package org.example.model;
 
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Represents a reminder for a task.
@@ -11,7 +13,10 @@ public class Reminder {
     private String type;         // Reminder type (e.g., "1 day", "1 week", "1 month", "Custom")
     private LocalDate reminderDate; // The actual reminder date
 
-    public Reminder(int id, int taskId, String type, LocalDate reminderDate) {
+    public Reminder(@JsonProperty("id") int id,
+                    @JsonProperty("taskId") int taskId,
+                    @JsonProperty("type") String type,
+                    @JsonProperty("reminderDate") LocalDate reminderDate) {
         this.id = id;
         this.taskId = taskId;
         this.type = type;

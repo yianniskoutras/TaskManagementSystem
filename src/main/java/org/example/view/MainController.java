@@ -13,19 +13,18 @@ import javafx.stage.Stage;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.example.controller.TaskManager;
-import org.example.controller.ReminderManager;
 import org.example.model.Reminder;
 import org.example.model.Task;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainController {
 
     private final TaskManager taskManager = new TaskManager();
 
-    private final ReminderManager reminderManager = new ReminderManager();
 
     @FXML
     private ListView<String> categoryListView; // For displaying categories
@@ -198,7 +197,8 @@ public class MainController {
 
         // Populate the ListView with tasks
         taskListView.getItems().setAll(taskManager.getAllTasks());
-        reminderListView.getItems().setAll(reminderManager.getAllReminders());
+
+        refreshRemindersList();
 
         // Update task-related statistics
         updateTaskCounts();
@@ -827,20 +827,29 @@ public class MainController {
         showInformation("Edit Priority", "Priority editing functionality is not yet implemented.");
     }
 
+    /**
+     * Refresh reminders from all tasks.
+     */
+    private void refreshRemindersList() {
+        reminderListView.getItems().clear();
+        taskManager.getAllTasks().forEach(task -> {
+            if (task.getReminders() != null) {
+                reminderListView.getItems().addAll(task.getReminders());
+            }
+        });
+    }
+
 
     /**
      * Add a new reminder for a selected task.
      */
     @FXML
     private void handleAddReminder() {
-        // Select task from Task Management tab
         Task selectedTask = taskListView.getSelectionModel().getSelectedItem();
-
         if (selectedTask == null) {
             showWarning("No Task Selected", "Please select a task to set a reminder.");
             return;
         }
-
         if ("Completed".equalsIgnoreCase(selectedTask.getStatus())) {
             showWarning("Invalid Task", "Cannot add a reminder for a completed task.");
             return;
@@ -851,41 +860,53 @@ public class MainController {
         typeDialog.setTitle("Set Reminder");
         typeDialog.setHeaderText("Select Reminder Type");
         typeDialog.setContentText("Reminder Type:");
-
         String reminderType = typeDialog.showAndWait().orElse(null);
         if (reminderType == null) return;
 
-        LocalDate customDate = null;
+        LocalDate reminderDate = null;
         if ("Custom".equalsIgnoreCase(reminderType)) {
-            // Prompt for a custom reminder date
+            // Show date picker dialog for custom date
             DatePicker datePicker = new DatePicker(LocalDate.now().plusDays(1));
             Dialog<LocalDate> dateDialog = new Dialog<>();
             dateDialog.setTitle("Select Custom Reminder Date");
             dateDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-            GridPane grid = new GridPane();
-            grid.setHgap(10);
-            grid.setVgap(10);
-            grid.setPadding(new Insets(20));
-            grid.add(new Label("Reminder Date:"), 0, 0);
-            grid.add(datePicker, 1, 0);
-
-            dateDialog.getDialogPane().setContent(grid);
-            dateDialog.setResultConverter(dialogButton -> (dialogButton == ButtonType.OK) ? datePicker.getValue() : null);
-            customDate = dateDialog.showAndWait().orElse(null);
-
-            if (customDate == null) return;
-        }
-
-        // Add the reminder
-        boolean success = reminderManager.addReminder(selectedTask, reminderType, customDate);
-        if (success) {
-            showInformation("Reminder Set", "Reminder added for task: " + selectedTask.getTitle());
-            reminderListView.getItems().setAll(reminderManager.getAllReminders()); // Update Reminders tab
+            dateDialog.getDialogPane().setContent(new VBox(10, new Label("Reminder Date:"), datePicker));
+            dateDialog.setResultConverter(button -> button == ButtonType.OK ? datePicker.getValue() : null);
+            reminderDate = dateDialog.showAndWait().orElse(null);
+            if (reminderDate == null) return; // Ensure a valid date is selected
         } else {
-            showWarning("Failed", "Failed to add reminder. Ensure the date is valid.");
+            // 🔥 Set automatic reminder date based on type
+            switch (reminderType) {
+                case "1 day":
+                    reminderDate = selectedTask.getDeadline().minusDays(1);
+                    break;
+                case "1 week":
+                    reminderDate = selectedTask.getDeadline().minusWeeks(1);
+                    break;
+                case "1 month":
+                    reminderDate = selectedTask.getDeadline().minusMonths(1);
+                    break;
+            }
         }
+
+        // 🔥 Ensure task has a reminders list before adding
+        if (selectedTask.getReminders() == null) {
+            selectedTask.setReminders(new ArrayList<>());
+        }
+
+        // 🔥 Create and add reminder with correct date
+        Reminder newReminder = new Reminder(taskManager.generateReminderId(), selectedTask.getId(), reminderType, reminderDate);
+        selectedTask.getReminders().add(newReminder);
+
+        // 🔥 Save updated task with reminders
+        taskManager.saveData();
+
+        // Update UI
+        refreshRemindersList();
+        showInformation("Reminder Set", "Reminder added for task: " + selectedTask.getTitle() + " on " + reminderDate);
     }
+
+
 
 
 
@@ -925,18 +946,19 @@ public class MainController {
             dateDialog.setTitle("Select Custom Reminder Date");
             dateDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
             dateDialog.getDialogPane().setContent(new VBox(10, new Label("Reminder Date:"), datePicker));
-            dateDialog.setResultConverter(dialogButton -> dialogButton == ButtonType.OK ? datePicker.getValue() : null);
+            dateDialog.setResultConverter(button -> button == ButtonType.OK ? datePicker.getValue() : null);
             newCustomDate = dateDialog.showAndWait().orElse(null);
             if (newCustomDate == null) return;
         }
 
-        boolean success = reminderManager.updateReminder(selectedReminder.getId(), newType, newCustomDate, associatedTask);
-        if (success) {
-            showInformation("Reminder Updated", "The reminder has been updated successfully.");
-            reminderListView.getItems().setAll(reminderManager.getAllReminders());
-        } else {
-            showWarning("Failed", "Failed to update the reminder. Please check the input.");
-        }
+        // Update reminder
+        selectedReminder.setType(newType);
+        selectedReminder.setReminderDate(newCustomDate);
+        taskManager.saveData(); // Save changes
+
+        // Refresh UI
+        refreshRemindersList();
+        showInformation("Reminder Updated", "The reminder has been updated successfully.");
     }
 
 
@@ -950,14 +972,22 @@ public class MainController {
             showWarning("No Reminder Selected", "Please select a reminder to delete.");
             return;
         }
-        boolean success = reminderManager.deleteReminder(selectedReminder.getId());
-        if (success) {
-            showInformation("Reminder Deleted", "The reminder has been deleted successfully.");
-            reminderListView.getItems().setAll(reminderManager.getAllReminders());
-        } else {
-            showWarning("Failed", "Failed to delete the reminder.");
+
+        // Find the associated task and remove the reminder
+        Task associatedTask = taskManager.getAllTasks().stream()
+                .filter(task -> task.getId() == selectedReminder.getTaskId())
+                .findFirst().orElse(null);
+
+        if (associatedTask != null) {
+            associatedTask.getReminders().removeIf(r -> r.getId() == selectedReminder.getId());
+            taskManager.saveData(); // Save changes
         }
+
+        // Refresh UI
+        refreshRemindersList();
+        showInformation("Reminder Deleted", "The reminder has been deleted successfully.");
     }
+
 
 
 
