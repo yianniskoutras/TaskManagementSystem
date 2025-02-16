@@ -37,7 +37,7 @@
     "reminders" : [ {
       "id" : 1,
       "taskId" : 7,
-      "type" : "1 day",
+      "type" : "Custom",
       "reminderDate" : [ 2025, 3, 4 ]
     } ]
   } ],

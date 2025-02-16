@@ -17,6 +17,8 @@ import org.example.model.Reminder;
 import org.example.model.Task;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
+
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -317,13 +319,6 @@ public class MainController {
     }
 
 
-
-
-
-    // Populate categories in the ListView
-    private void populateCategories() {
-        categoryListView.getItems().setAll(taskManager.getCategories());
-    }
 
     private void populatePriorities() {
         priorityListView.getItems().setAll(taskManager.getPriorityLevels());
@@ -918,7 +913,7 @@ public class MainController {
         }
 
         else {
-            String newCategoryName = promptInput("Rename Category", "Enter new name for the category:", selectedCategory);
+            String newCategoryName = promptInput("Rename Category", "Enter a new name for the category:", selectedCategory);
             if (newCategoryName != null && !newCategoryName.isBlank()) {
                 taskManager.renameCategory(selectedCategory, newCategoryName);
                 categoryListView.getItems().setAll(taskManager.getCategories());
@@ -981,7 +976,7 @@ public class MainController {
             reminderDate = dateDialog.showAndWait().orElse(null);
             if (reminderDate == null) return; // Ensure a valid date is selected
         } else {
-            // 🔥 Set automatic reminder date based on type
+            // Set automatic reminder date based on type
             switch (reminderType) {
                 case "1 day":
                     reminderDate = selectedTask.getDeadline().minusDays(1);
@@ -1054,35 +1049,115 @@ public class MainController {
             return;
         }
 
-        // Prompt user for new reminder type
+        // Prompt user for new reminder type with consistent styling
         ChoiceDialog<String> typeDialog = new ChoiceDialog<>(selectedReminder.getType(), List.of("1 day", "1 week", "1 month", "Custom"));
         typeDialog.setTitle("Edit Reminder");
-        typeDialog.setHeaderText("Select New Reminder Type");
+
+// Load external CSS files for dialog and tab styles
+        URL dialogCssURL = getClass().getResource("/styles/dialogstyles.css");
+        if (dialogCssURL != null) {
+            typeDialog.getDialogPane().getStylesheets().add(dialogCssURL.toExternalForm());
+        }
+
+        URL tabCssURL = getClass().getResource("/styles/tabstyles.css");
+
+        if (tabCssURL != null) {
+            typeDialog.getDialogPane().getStylesheets().add(tabCssURL.toExternalForm());
+        }
+
+// Set a custom header to use blue text
+        Label headerLabel = new Label("Select New Reminder Type");
+        headerLabel.setStyle("-fx-text-fill: #003d99; -fx-font-size: 16px; -fx-font-weight: bold;");
+        typeDialog.getDialogPane().setHeader(headerLabel);
+
         typeDialog.setContentText("Reminder Type:");
+
+// Show the dialog and retrieve the result
         String newType = typeDialog.showAndWait().orElse(null);
+
         if (newType == null) return;
 
-        LocalDate newCustomDate = null;
+        LocalDate newDate;
         if ("Custom".equalsIgnoreCase(newType)) {
+            // Ask user for a custom date
+            // Create a DatePicker with the current reminder date and apply inline styling.
             DatePicker datePicker = new DatePicker(selectedReminder.getReminderDate());
+            datePicker.setStyle("-fx-background-color: #ffffff; -fx-border-color: #003d99; -fx-border-radius: 5; -fx-text-fill: #003d99;");
+
+// Create the dialog.
             Dialog<LocalDate> dateDialog = new Dialog<>();
             dateDialog.setTitle("Select Custom Reminder Date");
+
+            if (dialogCssURL != null) {
+                dateDialog.getDialogPane().getStylesheets().add(dialogCssURL.toExternalForm());
+            } else {
+                System.err.println("dialogstyles.css not found!");
+            }
+
+            if (tabCssURL != null) {
+                dateDialog.getDialogPane().getStylesheets().add(tabCssURL.toExternalForm());
+            } else {
+                System.err.println("tabstyles.css not found!");
+            }
+
+// Set a custom header using a Label styled in blue.
+            Label headerLabel1 = new Label("Select Custom Reminder Date");
+            headerLabel1.setStyle("-fx-text-fill: #003d99; -fx-font-size: 16px; -fx-font-weight: bold;");
+            dateDialog.getDialogPane().setHeader(headerLabel1);
+
+// Set button types.
             dateDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-            dateDialog.getDialogPane().setContent(new VBox(10, new Label("Reminder Date:"), datePicker));
+
+// Create a VBox for the dialog content, styled to match your UI.
+            VBox content = new VBox(10);
+            content.setAlignment(Pos.CENTER);
+            content.setPadding(new Insets(20));
+            Label label = new Label("Reminder Date:");
+            label.setStyle("-fx-text-fill: #003d99; -fx-font-size: 14px; -fx-font-weight: bold;");
+            content.getChildren().addAll(label, datePicker);
+            dateDialog.getDialogPane().setContent(content);
+
+// Convert the result when the user clicks OK.
             dateDialog.setResultConverter(button -> button == ButtonType.OK ? datePicker.getValue() : null);
-            newCustomDate = dateDialog.showAndWait().orElse(null);
-            if (newCustomDate == null) return;
+
+// Show the dialog and assign the result.
+            newDate = dateDialog.showAndWait().orElse(null);
+
+            if (newDate == null) return;
+        } else {
+            // Automatically calculate new reminder date based on type.
+            switch (newType.toLowerCase()) {
+                case "1 day":
+                    newDate = associatedTask.getDeadline().minusDays(1);
+                    break;
+                case "1 week":
+                    newDate = associatedTask.getDeadline().minusWeeks(1);
+                    break;
+                case "1 month":
+                    newDate = associatedTask.getDeadline().minusMonths(1);
+                    break;
+                default:
+                    newDate = associatedTask.getDeadline().minusDays(1);
+            }
         }
+
+        // After calculating newDate
+        if (newDate.compareTo(associatedTask.getDeadline()) >= 0) {
+            showWarning("Invalid Date", "The reminder date must be before the task deadline.");
+            return;
+        }
+
 
         // Update reminder
         selectedReminder.setType(newType);
-        selectedReminder.setReminderDate(newCustomDate);
+        selectedReminder.setReminderDate(newDate);
         taskManager.saveData(); // Save changes
 
         // Refresh UI
         refreshRemindersList();
         showInformation("Reminder Updated", "The reminder has been updated successfully.");
     }
+
 
 
     /**
@@ -1117,13 +1192,33 @@ public class MainController {
     /**
      * Utility method to prompt the user for input.
      */
-    private String promptInput(String title, String header, String content) {
-        TextInputDialog dialog = new TextInputDialog();
+    private String promptInput(String title, String header, String defaultValue) {
+        TextInputDialog dialog = new TextInputDialog(defaultValue);
         dialog.setTitle(title);
-        dialog.setHeaderText(header);
-        dialog.setContentText(content);
+        // Instead of using setHeaderText(String), create a custom header Label.
+        Label headerLabel = new Label(header);
+        headerLabel.setStyle("-fx-text-fill: #003d99; -fx-font-size: 16px; -fx-font-weight: bold;");
+        dialog.getDialogPane().setHeader(headerLabel);
+
+        // Load your external CSS files for consistent styling.
+        URL dialogCssURL = getClass().getResource("/styles/dialogstyles.css");
+        if (dialogCssURL != null) {
+            dialog.getDialogPane().getStylesheets().add(dialogCssURL.toExternalForm());
+        } else {
+            System.err.println("dialogstyles.css not found!");
+        }
+        URL tabCssURL = getClass().getResource("/styles/tabstyles.css");
+        if (tabCssURL != null) {
+            dialog.getDialogPane().getStylesheets().add(tabCssURL.toExternalForm());
+        } else {
+            System.err.println("tabstyles.css not found!");
+        }
+
+        // Optionally, style the content text (if needed) via CSS.
+        // Then show the dialog and return the user's input.
         return dialog.showAndWait().orElse(null);
     }
+
 
     /**
      * Utility method to prompt the user for a choice.
@@ -1207,10 +1302,26 @@ public class MainController {
         // Create a dialog for search input with a custom result type.
         Dialog<SearchCriteria> dialog = new Dialog<>();
         dialog.setTitle("Search Tasks");
-        dialog.setHeaderText("Enter search criteria:");
+        Label headerLabel = new Label("Enter search criteria:");
+        headerLabel.setStyle("-fx-text-fill: #003d99; -fx-font-size: 14px; -fx-font-weight: bold;");
+        dialog.getDialogPane().setHeader(headerLabel);
 
-        // Add the external CSS file for consistent styling.
-        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/styles/dialogstyles.css").toExternalForm());
+
+        // Load the external CSS file for dialog styling.
+        URL dialogCssURL = getClass().getResource("/styles/dialogstyles.css");
+        if (dialogCssURL != null) {
+            dialog.getDialogPane().getStylesheets().add(dialogCssURL.toExternalForm());
+        } else {
+            System.err.println("dialogstyles.css not found!");
+        }
+        // Also load the tab styles to ensure ComboBoxes get proper styling.
+
+        URL tabCssURL = getClass().getResource("/styles/tabstyles.css");
+        if (tabCssURL != null) {
+            dialog.getDialogPane().getStylesheets().add(tabCssURL.toExternalForm());
+        } else {
+            System.err.println("tabstyles.css not found!");
+        }
 
         // Set the button types.
         ButtonType searchButtonType = new ButtonType("Search", ButtonBar.ButtonData.OK_DONE);
@@ -1226,6 +1337,10 @@ public class MainController {
         catOptions.addAll(taskManager.getCategories());
         categoryCombo.getItems().setAll(catOptions);
         categoryCombo.setValue("All");
+        // Ensure it uses the "combo-box" style (from tabstyles.css)
+        if (!categoryCombo.getStyleClass().contains("combo-box")) {
+            categoryCombo.getStyleClass().add("combo-box");
+        }
 
         ComboBox<String> priorityCombo = new ComboBox<>();
         List<String> priOptions = new ArrayList<>();
@@ -1233,6 +1348,9 @@ public class MainController {
         priOptions.addAll(taskManager.getPriorityLevels());
         priorityCombo.getItems().setAll(priOptions);
         priorityCombo.setValue("All");
+        if (!priorityCombo.getStyleClass().contains("combo-box")) {
+            priorityCombo.getStyleClass().add("combo-box");
+        }
 
         // Layout the controls in a grid.
         GridPane grid = new GridPane();
@@ -1240,12 +1358,21 @@ public class MainController {
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
 
-        grid.add(new Label("Title:"), 0, 0);
+        Label titleLabel = new Label("Title:");
+        titleLabel.setStyle("-fx-text-fill: #003d99; -fx-font-size: 14px; -fx-font-weight: bold;");
+        grid.add(titleLabel, 0, 0);
         grid.add(titleField, 1, 0);
-        grid.add(new Label("Category:"), 0, 1);
+
+        Label categoryLabel = new Label("Category:");
+        categoryLabel.setStyle("-fx-text-fill: #003d99; -fx-font-size: 14px; -fx-font-weight: bold;");
+        grid.add(categoryLabel, 0, 1);
         grid.add(categoryCombo, 1, 1);
-        grid.add(new Label("Priority:"), 0, 2);
+
+        Label priorityLabel = new Label("Priority:");
+        priorityLabel.setStyle("-fx-text-fill: #003d99; -fx-font-size: 14px; -fx-font-weight: bold;");
+        grid.add(priorityLabel, 0, 2);
         grid.add(priorityCombo, 1, 2);
+
 
         dialog.getDialogPane().setContent(grid);
 

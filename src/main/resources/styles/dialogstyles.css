@@ -22,3 +22,9 @@
     -fx-font-size: 14px;
     -fx-padding: 5 15 5 15;
 }
+
+.dialog-pane > .content > Label {
+    -fx-text-fill: #003d99;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}

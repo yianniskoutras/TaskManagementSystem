@@ -3,6 +3,7 @@
 <?import javafx.scene.layout.*?>
 
 <?import java.net.URL?>
+<?import javafx.geometry.Insets?>
 <BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="org.example.view.MainController" style="-fx-background-color: #e6f7ff;">
     <!-- Top Section -->
     <top>
@@ -65,6 +66,13 @@
                 <!-- Category Management Tab -->
                 <Tab text="Category Management">
                     <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20; -fx-background-color: #e6f7ff;">
+                        <!-- Added label for clarity -->
+                        <Label text="Manage Categories by adding/renaming/deleting:"
+                               style="-fx-text-fill: #003d99; -fx-font-size: 16px; -fx-font-weight: bold;">
+                            <VBox.margin>
+                                <Insets top="-10" />
+                            </VBox.margin>
+                        </Label>
                         <HBox spacing="10" alignment="CENTER">
                             <Button text="Add Category" onAction="#handleAddCategory" style="-fx-background-color: #003d99; -fx-text-fill: white;"/>
                             <Button text="Rename Category" onAction="#handleEditCategory" style="-fx-background-color: #003d99; -fx-text-fill: white;"/>
@@ -75,8 +83,15 @@
                 </Tab>
 
 
+
                 <Tab text="Priority Management">
                     <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20; -fx-background-color: #e6f7ff;">
+                        <Label text="Add/Rename/Delete your priorities:"
+                               style="-fx-text-fill: #003d99; -fx-font-size: 16px; -fx-font-weight: bold;">
+                            <VBox.margin>
+                                <Insets top="-10" />
+                            </VBox.margin>
+                        </Label>
                         <!-- Action Buttons -->
                         <HBox spacing="10" alignment="CENTER">
                             <Button text="Add Priority" onAction="#handleAddPriority" style="-fx-background-color: #003d99; -fx-text-fill: white; -fx-font-size: 14px;"/>
@@ -91,10 +106,16 @@
 
 
                 <!-- Reminders Tab -->
-                <Tab text="Reminders">
+                <Tab>
+                <graphic>
+                    <HBox spacing="5" alignment="CENTER">
+                        <Label text="⏰" style="-fx-font-size: 20px; -fx-text-fill: #003d99;"/>
+                        <Label text="Reminders" style="-fx-font-size: 14px; -fx-text-fill: #003d99; -fx-font-weight: bold;"/>
+                    </HBox>
+                </graphic>
                     <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20; -fx-background-color: #e6f7ff;">
                         <!-- Informational label -->
-                        <Label text="Note: Reminders can be added via the Task Management tab." style="-fx-text-fill: #003d99; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                        <Label text="Note: Reminders can be set via the Task Management tab!" style="-fx-text-fill: #003d99; -fx-font-size: 14px; -fx-font-weight: bold;"/>
                         <HBox spacing="10" alignment="CENTER">
                             <Button text="Edit Reminder" onAction="#handleEditReminder" style="-fx-background-color: #003d99; -fx-text-fill: white;"/>
                             <Button text="Delete Reminder" onAction="#handleDeleteReminder" style="-fx-background-color: #003d99; -fx-text-fill: white;"/>
