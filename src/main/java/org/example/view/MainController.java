@@ -969,27 +969,64 @@ public class MainController {
             return;
         }
 
-        // Prompt user to select reminder type
+        // Prompt user to select reminder type using a styled ChoiceDialog.
         ChoiceDialog<String> typeDialog = new ChoiceDialog<>("1 day", List.of("1 day", "1 week", "1 month", "Custom"));
         typeDialog.setTitle("Set Reminder");
-        typeDialog.setHeaderText("Select Reminder Type");
-        typeDialog.setContentText("Reminder Type:");
+
+        // Create and set a custom header label in blue.
+        Label typeHeader = new Label("Select Reminder Type");
+        typeHeader.setStyle("-fx-text-fill: #003d99; -fx-font-size: 16px; -fx-font-weight: bold;");
+        typeDialog.getDialogPane().setHeader(typeHeader);
+
+        // Remove the default content text.
+        typeDialog.setContentText(null);
+
+        // (Optional) Load external CSS for consistent styling.
+        URL dialogCssURL = getClass().getResource("/styles/dialogstyles.css");
+        if (dialogCssURL != null) {
+            typeDialog.getDialogPane().getStylesheets().add(dialogCssURL.toExternalForm());
+        } else {
+            System.err.println("dialogstyles.css not found!");
+        }
+
         String reminderType = typeDialog.showAndWait().orElse(null);
         if (reminderType == null) return;
 
         LocalDate reminderDate = null;
         if ("Custom".equalsIgnoreCase(reminderType)) {
-            // Show date picker dialog for custom date
+            // Create a styled DatePicker dialog.
             DatePicker datePicker = new DatePicker(LocalDate.now().plusDays(1));
+
             Dialog<LocalDate> dateDialog = new Dialog<>();
             dateDialog.setTitle("Select Custom Reminder Date");
+
+            // Set a custom header for the date dialog.
+            Label dateHeader = new Label("Select Custom Reminder Date");
+            dateHeader.setStyle("-fx-text-fill: #003d99; -fx-font-size: 16px; -fx-font-weight: bold;");
+            dateDialog.getDialogPane().setHeader(dateHeader);
+
+            // Load the same external CSS to keep styling consistent.
+            if (dialogCssURL != null) {
+                dateDialog.getDialogPane().getStylesheets().add(dialogCssURL.toExternalForm());
+            }
+
+            // Set button types.
             dateDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-            dateDialog.getDialogPane().setContent(new VBox(10, new Label("Reminder Date:"), datePicker));
+
+            // Create a VBox with a label and the DatePicker.
+            VBox dateContent = new VBox(10);
+            dateContent.setAlignment(Pos.CENTER);
+            Label dateLabel = new Label("Reminder Date:");
+            dateLabel.setStyle("-fx-text-fill: #003d99; -fx-font-size: 14px; -fx-font-weight: bold;");
+            dateContent.getChildren().addAll(dateLabel, datePicker);
+            dateDialog.getDialogPane().setContent(dateContent);
+
+            // Convert the result.
             dateDialog.setResultConverter(button -> button == ButtonType.OK ? datePicker.getValue() : null);
             reminderDate = dateDialog.showAndWait().orElse(null);
             if (reminderDate == null) return; // Ensure a valid date is selected
         } else {
-            // Set automatic reminder date based on type
+            // Set automatic reminder date based on type.
             switch (reminderType) {
                 case "1 day":
                     reminderDate = selectedTask.getDeadline().minusDays(1);
@@ -1003,13 +1040,13 @@ public class MainController {
             }
         }
 
-        // Enhancement: Check that the reminder date is before the task's deadline.
+        // Check that the reminder date is before the task's deadline.
         if (reminderDate.compareTo(selectedTask.getDeadline()) >= 0) {
             showWarning("Invalid Date", "The reminder date must be before the task deadline.");
             return;
         }
 
-        // Enhancement: Check for duplicate reminders (same date for same task)
+        // Check for duplicate reminders (same date for same task)
         if (selectedTask.getReminders() != null) {
             for (Reminder existingReminder : selectedTask.getReminders()) {
                 if (existingReminder.getReminderDate().equals(reminderDate)) {
@@ -1019,19 +1056,19 @@ public class MainController {
             }
         }
 
-        // 🔥 Ensure task has a reminders list before adding
+        // Ensure the task has a reminders list before adding.
         if (selectedTask.getReminders() == null) {
             selectedTask.setReminders(new ArrayList<>());
         }
 
-        // 🔥 Create and add reminder with correct date
+        // Create and add reminder with the computed date.
         Reminder newReminder = new Reminder(taskManager.generateReminderId(), selectedTask.getId(), reminderType, reminderDate);
         selectedTask.getReminders().add(newReminder);
 
-        // 🔥 Save updated task with reminders
+        // Save updated task with reminders.
         taskManager.saveData();
 
-        // Update UI
+        // Update UI.
         refreshRemindersList();
         showInformation("Reminder Set", "Reminder added for task: " + selectedTask.getTitle() + " on " + reminderDate);
     }
