@@ -431,6 +431,7 @@ public class MainController {
      */
     private void updateTaskCounts() {
         totalTasksLabel.setText("Total Tasks: " + taskManager.getAllTasks().size());
+        totalTasksLabel.setWrapText(false);
         completedTasksLabel.setText("Completed: " +
                 taskManager.getAllTasks().stream().filter(task -> "Completed".equals(task.getStatus())).count());
         delayedTasksLabel.setText("Delayed: " +
@@ -546,7 +547,7 @@ public class MainController {
      */
     @FXML
     private void handleAddTask() {
-        // Prompt the user for task details
+        // Prompt the user for task details using our custom dialogs.
         String title = promptInput("Add New Task", "Enter Task Title", "Title:");
         if (title == null || title.isBlank()) return;
 
@@ -559,14 +560,17 @@ public class MainController {
         String priority = promptChoice("Add New Task", "Select Task Priority", "Priority:", taskManager.getPriorityLevels());
         if (priority == null) return;
 
-        // Create a dialog for selecting the deadline using a DatePicker
+        // Create a dialog for selecting the deadline using a styled DatePicker.
         DatePicker datePicker = new DatePicker();
-        datePicker.setValue(LocalDate.now().plusDays(7)); // Default to 7 days from now
+        datePicker.setValue(LocalDate.now().plusDays(7));
 
         Dialog<LocalDate> dateDialog = new Dialog<>();
         dateDialog.setTitle("Select Deadline");
         dateDialog.setHeaderText("Choose the deadline for the task:");
-
+        URL cssURL2 = getClass().getResource("/styles/dialogstyles.css");
+        if (cssURL2 != null) {
+            dateDialog.getDialogPane().getStylesheets().add(cssURL2.toExternalForm());
+        }
         ButtonType confirmButtonType = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
         dateDialog.getDialogPane().getButtonTypes().addAll(confirmButtonType, ButtonType.CANCEL);
 
@@ -574,12 +578,13 @@ public class MainController {
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
-        grid.add(new Label("Deadline:"), 0, 0);
+        Label deadlineLabel = new Label("Deadline:");
+        deadlineLabel.setStyle("-fx-text-fill: #003d99; -fx-font-size: 14px; -fx-font-weight: bold;");
+        grid.add(deadlineLabel, 0, 0);
         grid.add(datePicker, 1, 0);
 
         dateDialog.getDialogPane().setContent(grid);
 
-        // Convert the result to a LocalDate when the Confirm button is clicked
         dateDialog.setResultConverter(dialogButton -> {
             if (dialogButton == confirmButtonType) {
                 return datePicker.getValue();
@@ -590,14 +595,15 @@ public class MainController {
         LocalDate deadline = dateDialog.showAndWait().orElse(null);
         if (deadline == null) return;
 
-        // Create and add the task
+        // Create and add the task.
         Task newTask = new Task(taskManager.generateTaskId(), title, description, category, priority, deadline);
         taskManager.addTask(newTask);
 
-        // Update UI
+        // Update UI.
         taskListView.getItems().setAll(taskManager.getAllTasks());
         updateTaskCounts();
     }
+
 
     /**
      * Delete a task from the system.
@@ -1167,44 +1173,99 @@ public class MainController {
     /**
      * Utility method to prompt the user for input.
      */
-    private String promptInput(String title, String header, String defaultValue) {
-        TextInputDialog dialog = new TextInputDialog(defaultValue);
-        dialog.setTitle(title);
-        // Instead of using setHeaderText(String), create a custom header Label.
-        Label headerLabel = new Label(header);
-        headerLabel.setStyle("-fx-text-fill: #003d99; -fx-font-size: 16px; -fx-font-weight: bold;");
-        dialog.getDialogPane().setHeader(headerLabel);
+    private String promptInput(String dialogTitle, String headerText, String labelText) {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle(dialogTitle);
+        dialog.setHeaderText(headerText);
 
-        // Load your external CSS files for consistent styling.
-        URL dialogCssURL = getClass().getResource("/styles/dialogstyles.css");
-        if (dialogCssURL != null) {
-            dialog.getDialogPane().getStylesheets().add(dialogCssURL.toExternalForm());
-        } else {
-            System.err.println("dialogstyles.css not found!");
-        }
-        URL tabCssURL = getClass().getResource("/styles/tabstyles.css");
-        if (tabCssURL != null) {
-            dialog.getDialogPane().getStylesheets().add(tabCssURL.toExternalForm());
-        } else {
-            System.err.println("tabstyles.css not found!");
+        // Optionally add an external CSS file for further styling
+        URL cssURL = getClass().getResource("/styles/dialogstyles.css");
+        if (cssURL != null) {
+            dialog.getDialogPane().getStylesheets().add(cssURL.toExternalForm());
         }
 
-        // Optionally, style the content text (if needed) via CSS.
-        // Then show the dialog and return the user's input.
+        // Create a label with blue text.
+        Label label = new Label(labelText);
+        label.setStyle("-fx-text-fill: #003d99; -fx-font-size: 14px; -fx-font-weight: bold;");
+
+        // Create a text field with blue text and a blue border.
+        TextField textField = new TextField();
+        textField.setStyle("-fx-background-color: #ffffff; -fx-border-color: #003d99; " +
+                "-fx-border-radius: 5; -fx-padding: 5; -fx-text-fill: #003d99;");
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+        grid.add(label, 0, 0);
+        grid.add(textField, 1, 0);
+
+        dialog.getDialogPane().setContent(grid);
+
+        ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
+
+        Platform.runLater(textField::requestFocus);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == okButtonType) {
+                return textField.getText();
+            }
+            return null;
+        });
+
         return dialog.showAndWait().orElse(null);
     }
+
+
+
 
 
     /**
      * Utility method to prompt the user for a choice.
      */
-    private String promptChoice(String title, String header, String content, List<String> choices) {
-        ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
-        dialog.setTitle(title);
-        dialog.setHeaderText(header);
-        dialog.setContentText(content);
+    private String promptChoice(String dialogTitle, String headerText, String labelText, List<String> choices) {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle(dialogTitle);
+        dialog.setHeaderText(headerText);
+
+        URL cssURL = getClass().getResource("/styles/dialogstyles.css");
+        if (cssURL != null) {
+            dialog.getDialogPane().getStylesheets().add(cssURL.toExternalForm());
+        }
+
+        Label label = new Label(labelText);
+        label.setStyle("-fx-text-fill: #003d99; -fx-font-size: 14px; -fx-font-weight: bold;");
+
+        ComboBox<String> comboBox = new ComboBox<>();
+        comboBox.getItems().setAll(choices);
+        comboBox.setValue(choices.get(0));
+        comboBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #003d99; " +
+                "-fx-border-radius: 5; -fx-text-fill: #003d99;");
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+        grid.add(label, 0, 0);
+        grid.add(comboBox, 1, 0);
+
+        dialog.getDialogPane().setContent(grid);
+
+        ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == okButtonType) {
+                return comboBox.getValue();
+            }
+            return null;
+        });
+
         return dialog.showAndWait().orElse(null);
     }
+
+
 
     /**
      * Show an informational alert.

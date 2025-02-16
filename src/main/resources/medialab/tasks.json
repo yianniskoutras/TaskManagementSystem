@@ -40,8 +40,17 @@
       "type" : "Custom",
       "reminderDate" : [ 2025, 3, 4 ]
     } ]
+  }, {
+    "id" : 9,
+    "title" : "newone",
+    "description" : "same",
+    "category" : "NTUA",
+    "priority" : "Default",
+    "deadline" : [ 2025, 2, 23 ],
+    "status" : "Open",
+    "reminders" : [ ]
   } ],
   "categories" : [ "Other", "NTUA" ],
-  "priorities" : [ "Default", "High", "Low" ],
+  "priorities" : [ "Default", "Low", "High" ],
   "reminders" : [ ]
 }
