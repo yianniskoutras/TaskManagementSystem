@@ -43,14 +43,10 @@ public class MainController {
     @FXML
     private ListView<Task> taskListView; // For displaying tasks
 
-    @FXML
-    private TextField searchField; // For search functionality
 
     @FXML
     private ListView<String> priorityListView;
 
-    @FXML
-    private ListView<Task> searchResultsView; // For displaying search results
 
     @FXML
     private ListView<Reminder> reminderListView;
@@ -735,27 +731,6 @@ public class MainController {
     }
 
 
-    /**
-     * Search tasks based on a keyword.
-     */
-    @FXML
-    private void handleSearch() {
-        String keyword = searchField.getText().trim();
-
-        if (keyword.isEmpty()) {
-            showWarning("Empty Search", "Please enter a keyword to search.");
-            return;
-        }
-
-        searchResultsView.getItems().clear();
-        taskManager.getAllTasks().stream()
-                .filter(task -> task.getTitle().contains(keyword) || task.getDescription().contains(keyword))
-                .forEach(searchResultsView.getItems()::add);
-
-        if (searchResultsView.getItems().isEmpty()) {
-            showInformation("No Results", "No tasks match your search criteria.");
-        }
-    }
 
     @FXML
     private void handleEditTask() {
@@ -1416,6 +1391,24 @@ public class MainController {
         }
     }
 
+    @FXML
+    private void handleHelp() {
+        Alert helpAlert = new Alert(Alert.AlertType.INFORMATION);
+        helpAlert.setTitle("Usage Instructions");
+        helpAlert.setHeaderText("How to Use MediaLab Assistant");
+        helpAlert.setContentText("• Use the Task Management tab to add, edit, or delete tasks. Set up reminders for your tasks.\n\n"
+                + "• Manage categories and priorities in their respective tabs.\n\n"
+                + "• Manage reminders for tasks in the Reminders tab.\n\n"
+                + "• Use the search functionality (accessible via the search button of the Task Management tab) to filter tasks by title, category, or priority.");
+
+        // Load your external CSS for consistent styling (if available)
+        URL dialogCssURL = getClass().getResource("/styles/dialogstyles.css");
+        if (dialogCssURL != null) {
+            helpAlert.getDialogPane().getStylesheets().add(dialogCssURL.toExternalForm());
+        }
+
+        helpAlert.showAndWait();
+    }
 
 
 
