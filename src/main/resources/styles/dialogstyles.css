@@ -1,0 +1,24 @@
+.dialog-pane {
+    -fx-background-color: #e6f7ff;
+    -fx-border-color: #003d99;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: #cce7ff;
+    -fx-padding: 10;
+}
+
+.dialog-pane .content {
+    -fx-background-color: #e6f7ff;
+    -fx-padding: 20;
+}
+
+.dialog-pane .button-bar .button {
+    -fx-background-color: #003d99;
+    -fx-text-fill: white;
+    -fx-border-radius: 5;
+    -fx-font-size: 14px;
+    -fx-padding: 5 15 5 15;
+}

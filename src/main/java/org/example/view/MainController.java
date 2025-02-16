@@ -56,6 +56,9 @@ public class MainController {
     @FXML
     private ComboBox<String> categoryFilterComboBox;
 
+    @FXML
+    private Button searchButton;
+
 
     /**
      * Initialize the UI and load data.
@@ -286,6 +289,7 @@ public class MainController {
         // Update task-related statistics
         updateTaskCounts();
 
+        searchButton.setOnAction(e -> showSearchPopup());
         // Schedule the popup to show after the application is loaded
         Platform.runLater(this::showDelayedTasksPopup);
     }
@@ -1198,6 +1202,94 @@ public class MainController {
             }
         });
     }
+
+    private void showSearchPopup() {
+        // Create a dialog for search input with a custom result type.
+        Dialog<SearchCriteria> dialog = new Dialog<>();
+        dialog.setTitle("Search Tasks");
+        dialog.setHeaderText("Enter search criteria:");
+
+        // Add the external CSS file for consistent styling.
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/styles/dialogstyles.css").toExternalForm());
+
+        // Set the button types.
+        ButtonType searchButtonType = new ButtonType("Search", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(searchButtonType, ButtonType.CANCEL);
+
+        // Create controls for the search criteria.
+        TextField titleField = new TextField();
+        titleField.setPromptText("Title keyword...");
+
+        ComboBox<String> categoryCombo = new ComboBox<>();
+        List<String> catOptions = new ArrayList<>();
+        catOptions.add("All");
+        catOptions.addAll(taskManager.getCategories());
+        categoryCombo.getItems().setAll(catOptions);
+        categoryCombo.setValue("All");
+
+        ComboBox<String> priorityCombo = new ComboBox<>();
+        List<String> priOptions = new ArrayList<>();
+        priOptions.add("All");
+        priOptions.addAll(taskManager.getPriorityLevels());
+        priorityCombo.getItems().setAll(priOptions);
+        priorityCombo.setValue("All");
+
+        // Layout the controls in a grid.
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        grid.add(new Label("Title:"), 0, 0);
+        grid.add(titleField, 1, 0);
+        grid.add(new Label("Category:"), 0, 1);
+        grid.add(categoryCombo, 1, 1);
+        grid.add(new Label("Priority:"), 0, 2);
+        grid.add(priorityCombo, 1, 2);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Convert the result to a SearchCriteria object when the Search button is clicked.
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == searchButtonType) {
+                return new SearchCriteria(titleField.getText(), categoryCombo.getValue(), priorityCombo.getValue());
+            }
+            return null;
+        });
+
+        // Process the search criteria.
+        dialog.showAndWait().ifPresent(criteria -> {
+            List<Task> filteredTasks = taskManager.getAllTasks().stream().filter(task -> {
+                boolean matchesTitle = criteria.title == null || criteria.title.isBlank() ||
+                        task.getTitle().toLowerCase().contains(criteria.title.toLowerCase());
+                boolean matchesCategory = "All".equalsIgnoreCase(criteria.category) ||
+                        task.getCategory().equalsIgnoreCase(criteria.category);
+                boolean matchesPriority = "All".equalsIgnoreCase(criteria.priority) ||
+                        task.getPriority().equalsIgnoreCase(criteria.priority);
+                return matchesTitle && matchesCategory && matchesPriority;
+            }).toList();
+
+            taskListView.getItems().setAll(filteredTasks);
+            if (filteredTasks.isEmpty()) {
+                showInformation("No Results", "No tasks match your search criteria.");
+            }
+        });
+    }
+
+    // Helper class to encapsulate search criteria.
+    private static class SearchCriteria {
+        String title;
+        String category;
+        String priority;
+
+        SearchCriteria(String title, String category, String priority) {
+            this.title = title;
+            this.category = category;
+            this.priority = priority;
+        }
+    }
+
+
 
 
 }

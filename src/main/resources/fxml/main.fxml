@@ -22,17 +22,33 @@
         <TabPane style="-fx-background-color: #e6f7ff; -fx-border-color: transparent; -fx-tab-header-background: #cce7ff; -fx-tab-header-border-color: transparent; -fx-padding: 0;">
             <!-- Inline stylesheet defined via data URI -->
             <stylesheets>
-                <URL value="@../tabstyles/tabstyles.css"/>
+                <URL value="@../styles/tabstyles.css"/>
             </stylesheets>
             <tabs>
                 <!-- Task Management Tab -->
                 <Tab text="Task Management">
                     <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20; -fx-background-color: #e6f7ff;">
-                        <!-- New filter row -->
-                        <HBox spacing="10" alignment="CENTER">
-                            <Label text="Filter by Category:" style="-fx-text-fill: #003d99; -fx-font-size: 14px;"/>
-                            <ComboBox fx:id="categoryFilterComboBox" prefWidth="200"/>
-                        </HBox>
+                        <!-- Filter/Search Row using a GridPane -->
+                        <GridPane hgap="10" vgap="10" alignment="CENTER">
+                            <columnConstraints>
+                                <!-- Left column: empty, grows to push center/right elements -->
+                                <ColumnConstraints hgrow="ALWAYS"/>
+                                <!-- Center column: contains the filter ComboBox -->
+                                <ColumnConstraints halignment="CENTER"/>
+                                <!-- Right column: contains the search button, right aligned -->
+                                <ColumnConstraints halignment="RIGHT" hgrow="ALWAYS"/>
+                            </columnConstraints>
+                            <HBox spacing="5" alignment="CENTER">
+                                <Label text="Filter by Category:" style="-fx-text-fill: #003d99; -fx-font-size: 14px;"/>
+                                <ComboBox fx:id="categoryFilterComboBox" prefWidth="150"
+                                          style="-fx-background-color: #ffffff; -fx-border-color: #003d99; -fx-border-radius: 5; -fx-font-size: 14px; -fx-text-fill: #003d99;"/>
+                            </HBox>
+                            <HBox spacing="5" alignment="CENTER_RIGHT" GridPane.columnIndex="2">
+                                <Label text="Search Task:" style="-fx-text-fill: #003d99; -fx-font-size: 14px;"/>
+                                <Button fx:id="searchButton" text="🔍"
+                                        style="-fx-background-color: transparent; -fx-font-size: 18px; -fx-text-fill: #003d99;"/>
+                            </HBox>
+                        </GridPane>
                         <HBox spacing="10" alignment="CENTER">
                             <Button text="Add Task" onAction="#handleAddTask" style="-fx-background-color: #003d99; -fx-text-fill: white;"/>
                             <Button text="Edit Task" onAction="#handleEditTask" style="-fx-background-color: #003d99; -fx-text-fill: white;"/>
@@ -84,20 +100,6 @@
                             <Button text="Delete Reminder" onAction="#handleDeleteReminder" style="-fx-background-color: #003d99; -fx-text-fill: white;"/>
                         </HBox>
                         <ListView fx:id="reminderListView" prefHeight="250" style="-fx-background-color: #ffffff; -fx-border-color: #003d99;"/>
-                    </VBox>
-                </Tab>
-
-
-
-
-
-                <!-- Search Tab -->
-                <Tab text="Search">
-                    <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20; -fx-background-color: #e6f7ff;">
-                        <Label text="Search by Criteria" style="-fx-text-fill: #003d99;"/>
-                        <TextField fx:id="searchField" promptText="Enter search keyword" style="-fx-border-color: #99ccff;"/>
-                        <Button text="Search" onAction="#handleSearch" style="-fx-background-color: #003d99; -fx-text-fill: white;"/>
-                        <ListView fx:id="searchResultsView" prefHeight="200" prefWidth="400" style="-fx-background-color: #ffffff; -fx-border-color: #003d99;"/>
                     </VBox>
                 </Tab>
             </tabs>
