@@ -623,6 +623,7 @@ public class MainController {
         taskListView.getItems().setAll(taskManager.getAllTasks());
         updateTaskCounts();
         showInformation("Task Deleted", "The selected task has been deleted successfully.");
+        refreshRemindersList();
     }
 
     /**

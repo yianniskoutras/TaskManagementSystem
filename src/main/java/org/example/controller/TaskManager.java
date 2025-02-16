@@ -82,11 +82,6 @@ public class TaskManager {
         saveData(); // Save all data to the JSON file
     }
 
-    public List<Task> searchTasks(String category, String priority) {
-        return tasks.stream()
-                .filter(task -> task.getCategory().equalsIgnoreCase(category) || task.getPriority().equalsIgnoreCase(priority))
-                .toList();
-    }
 
     public List<Task> getAllTasks() {
         return tasks;
@@ -120,10 +115,6 @@ public class TaskManager {
             // Remove tasks that belong to the category.
             tasks.removeIf(task -> task.getCategory().equals(category));
             saveData();
-            // If your Task objects store reminders internally, then they are gone with the task.
-            // If you have a separate reminders list (e.g., in your DataWrapper), update it as well:
-            // reminders.removeIf(reminder -> removedTaskIds.contains(reminder.getTaskId()));
-
             saveData(); // Save updated data to JSON.
         }
     }

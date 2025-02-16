@@ -40,15 +40,6 @@
       "type" : "1 week",
       "reminderDate" : [ 2025, 2, 26 ]
     } ]
-  }, {
-    "id" : 8,
-    "title" : "newtest",
-    "description" : "efwe",
-    "category" : "NTUA",
-    "priority" : "Default",
-    "deadline" : [ 2025, 2, 23 ],
-    "status" : "Open",
-    "reminders" : [ ]
   } ],
   "categories" : [ "Other", "NTUA" ],
   "priorities" : [ "Default", "Low", "High" ],
