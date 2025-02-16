@@ -111,14 +111,23 @@ public class TaskManager {
 
     public void deleteCategory(String category) {
         if (!"Other".equals(category) && categories.contains(category)) {
+            // Remove tasks associated with this category and collect their IDs.
+            List<Integer> removedTaskIds = tasks.stream()
+                    .filter(task -> task.getCategory().equals(category))
+                    .map(Task::getId)
+                    .toList();
             categories.remove(category);
-
-            // Remove tasks associated with this category
+            // Remove tasks that belong to the category.
             tasks.removeIf(task -> task.getCategory().equals(category));
+            saveData();
+            // If your Task objects store reminders internally, then they are gone with the task.
+            // If you have a separate reminders list (e.g., in your DataWrapper), update it as well:
+            // reminders.removeIf(reminder -> removedTaskIds.contains(reminder.getTaskId()));
 
-            saveData(); // Save all data to the JSON file
+            saveData(); // Save updated data to JSON.
         }
     }
+
 
     // Priority Management
     public List<String> getPriorityLevels() {
@@ -188,6 +197,31 @@ public class TaskManager {
         saveData(); // Save updated data
         return true;
     }
+
+    // In TaskManager.java
+    public boolean renamePriority(String oldPriority, String newPriority) {
+        if (oldPriority == null || newPriority == null || oldPriority.equals(newPriority)) {
+            return false; // No change or invalid input.
+        }
+        if ("Default".equalsIgnoreCase(oldPriority)) {
+            return false; // "Default" cannot be renamed.
+        }
+        if (!priorityLevels.contains(oldPriority) || priorityLevels.contains(newPriority)) {
+            return false; // Old priority not found or new priority already exists.
+        }
+        // Rename the priority
+        priorityLevels.remove(oldPriority);
+        priorityLevels.add(newPriority);
+        // Update all tasks that use the old priority
+        for (Task task : tasks) {
+            if (task.getPriority().equalsIgnoreCase(oldPriority)) {
+                task.setPriority(newPriority);
+            }
+        }
+        saveData(); // Save changes to JSON
+        return true;
+    }
+
 
 
     // JSON Data Handling

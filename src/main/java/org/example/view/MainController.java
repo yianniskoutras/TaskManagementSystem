@@ -350,7 +350,7 @@ public class MainController {
                             priorityLabel.setStyle("-fx-text-fill: green; -fx-font-weight: bold; -fx-font-size: 14px;");
                             break;
                         default:
-                            priorityLabel.setStyle("-fx-text-fill: gray; -fx-font-size: 14px; -fx-font-style: italic;");
+                            priorityLabel.setStyle("-fx-text-fill: #003d99; -fx-font-size: 14px; -fx-font-style: italic;");
                             break;
                     }
 
@@ -677,6 +677,7 @@ public class MainController {
         filterOptions.addAll(taskManager.getCategories());
         categoryFilterComboBox.getItems().setAll(filterOptions);
         categoryFilterComboBox.setValue("All");
+        refreshRemindersList();
     }
 
 
@@ -904,22 +905,53 @@ public class MainController {
         }
     }
 
+
     @FXML
     private void handleEditPriority() {
-        showInformation("Edit Priority", "Priority editing functionality is not yet implemented.");
+        // Get the selected priority from the ListView.
+        String oldPriority = priorityListView.getSelectionModel().getSelectedItem();
+        if (oldPriority == null) {
+            showWarning("No Priority Selected", "Please select a priority to rename.");
+            return;
+        }
+        if ("Default".equalsIgnoreCase(oldPriority)) {
+            showWarning("Invalid Priority", "The 'Default' priority cannot be renamed.");
+            return;
+        }
+
+        // Prompt for the new priority name.
+        String newPriority = promptInput("Rename Priority", "Enter new name for the priority:", oldPriority);
+        if (newPriority == null || newPriority.isBlank()) {
+            return;
+        }
+
+        // Attempt to rename the priority using TaskManager's renamePriority method.
+        if (taskManager.renamePriority(oldPriority, newPriority)) {
+            showInformation("Priority Updated", "The priority has been successfully renamed.");
+            // Refresh the UI: update the Priority ListView and task list.
+            priorityListView.getItems().setAll(taskManager.getPriorityLevels());
+            taskListView.getItems().setAll(taskManager.getAllTasks());
+            updateTaskCounts();
+        } else {
+            showWarning("Rename Failed", "The new priority name may already exist or is invalid.");
+        }
     }
+
+
 
     /**
      * Refresh reminders from all tasks.
      */
     private void refreshRemindersList() {
         reminderListView.getItems().clear();
+        // Only add reminders from tasks that are still present.
         taskManager.getAllTasks().forEach(task -> {
-            if (task.getReminders() != null) {
+            if (task.getReminders() != null && !task.getReminders().isEmpty()) {
                 reminderListView.getItems().addAll(task.getReminders());
             }
         });
     }
+
 
 
     /**

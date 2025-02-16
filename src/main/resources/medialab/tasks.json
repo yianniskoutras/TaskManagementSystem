@@ -37,13 +37,13 @@
     "reminders" : [ {
       "id" : 1,
       "taskId" : 7,
-      "type" : "Custom",
-      "reminderDate" : [ 2025, 3, 4 ]
+      "type" : "1 week",
+      "reminderDate" : [ 2025, 2, 26 ]
     } ]
   }, {
-    "id" : 9,
-    "title" : "newone",
-    "description" : "same",
+    "id" : 8,
+    "title" : "newtest",
+    "description" : "efwe",
     "category" : "NTUA",
     "priority" : "Default",
     "deadline" : [ 2025, 2, 23 ],

@@ -95,7 +95,7 @@
 
                 <Tab text="Priority Management">
                     <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20; -fx-background-color: #e6f7ff;">
-                        <Label text="Add/Edit/Delete your priorities"
+                        <Label text="Add/Rename/Delete your priorities"
                                style="-fx-text-fill: #003d99; -fx-font-size: 16px; -fx-font-weight: bold;">
                             <VBox.margin>
                                 <Insets top="-10" />
@@ -104,7 +104,7 @@
                         <!-- Action Buttons -->
                         <HBox spacing="10" alignment="CENTER">
                             <Button text="Add Priority" onAction="#handleAddPriority" style="-fx-background-color: #003d99; -fx-text-fill: white; -fx-font-size: 14px;"/>
-                            <Button text="Edit Priority" onAction="#handleEditPriority" style="-fx-background-color: #003d99; -fx-text-fill: white; -fx-font-size: 14px;"/>
+                            <Button text="Rename Priority" onAction="#handleEditPriority" style="-fx-background-color: #003d99; -fx-text-fill: white; -fx-font-size: 14px;"/>
                             <Button text="Delete Priority" onAction="#handleDeletePriority" style="-fx-background-color: #003d99; -fx-text-fill: white; -fx-font-size: 14px;"/>
                         </HBox>
 
