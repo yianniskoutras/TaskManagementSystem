@@ -67,8 +67,6 @@ public class Task {
 
     public void setReminders(List<Reminder> reminders) { this.reminders = reminders; }
 
-    public void addReminder(Reminder reminder) { reminders.add(reminder); }
-    public void removeReminder(int reminderId) { reminders.removeIf(r -> r.getId() == reminderId); }
 
     @Override
     public String toString() {
