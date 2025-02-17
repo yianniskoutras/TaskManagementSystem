@@ -9,6 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Manages tasks, categories, priority levels, and reminders.
+ * Provides functionalities for task CRUD operations, category and priority management,
+ * and data persistence using JSON.
+ */
 public class TaskManager {
     private List<Task> tasks;
     private List<String> categories;       // Dynamic list for categories
@@ -16,6 +21,10 @@ public class TaskManager {
     private List<Reminder> reminders;
 
 
+    /**
+     * Constructs a new TaskManager instance.
+     * Initializes lists, loads data from JSON, and ensures default categories and priority levels.
+     */
     public TaskManager() {
         tasks = new ArrayList<>();
         categories = new ArrayList<>();
@@ -31,6 +40,7 @@ public class TaskManager {
 
     /**
      * Generates a unique ID for reminders.
+     * @return A new unique reminder ID.
      */
     public int generateReminderId() {
         int maxId = tasks.stream()
@@ -42,6 +52,10 @@ public class TaskManager {
     }
 
 
+    /**
+     * Initializes default categories and priority levels
+     * if they are empty.
+     */
     private void initializeDefaults() {
         if (categories.isEmpty()) {
             categories.add("Personal");
@@ -56,12 +70,29 @@ public class TaskManager {
         }
     }
 
-    // Task Management
+    // --------------------------------
+    // TASK MANAGEMENT
+    // --------------------------------
+
+    /**
+     * Adds a new task to the task list.
+     * @param task The task to be added.
+     */
     public void addTask(Task task) {
         tasks.add(task);
         saveData(); // Save all data to the JSON file
     }
 
+    /**
+     * Updates an existing task with new details.
+     * @param id The ID of the task to update.
+     * @param title The new title.
+     * @param description The new description.
+     * @param category The new category.
+     * @param priority The new priority level.
+     * @param deadline The new deadline.
+     * @param status The new status.
+     */
     public void updateTask(int id, String title, String description, String category, String priority, LocalDate deadline, String status) {
         for (Task task : tasks) {
             if (task.getId() == id) {
@@ -77,17 +108,32 @@ public class TaskManager {
         }
     }
 
+    /**
+     * Deletes a task based on its ID.
+     * @param id The ID of the task to delete.
+     */
     public void deleteTask(int id) {
         tasks.removeIf(task -> task.getId() == id);
         saveData(); // Save all data to the JSON file
     }
 
 
+    /**
+     * Retrieves a list of all tasks.
+     * @return A list of all tasks.
+     */
     public List<Task> getAllTasks() {
         return tasks;
     }
 
-    // Category Management
+    // --------------------------------
+    // CATEGORY MANAGEMENT
+    // --------------------------------
+
+    /**
+     * Retrieves all available categories.
+     * @return A list of category names.
+     */
     public List<String> getCategories() {
         if (categories.isEmpty()) {
             initializeDefaults(); // Ensure defaults if none are set
@@ -95,6 +141,11 @@ public class TaskManager {
         return new ArrayList<>(categories);
     }
 
+    /**
+     * Adds a new category if it doesn't already exist.
+     * @param category The category name to add.
+     * @return True if the category was added, false if it already exists.
+     */
     public boolean addCategory(String category) {
         if (category != null && !categories.contains(category)) {
             categories.add(category);
@@ -104,6 +155,10 @@ public class TaskManager {
         return false;
     }
 
+    /**
+     * Deletes a category and removes associated tasks.
+     * @param category The category name to delete.
+     */
     public void deleteCategory(String category) {
         if (!"Other".equals(category) && categories.contains(category)) {
             // Remove tasks associated with this category and collect their IDs.
@@ -120,7 +175,14 @@ public class TaskManager {
     }
 
 
-    // Priority Management
+    // --------------------------------
+    // PRIORITY MANAGEMENT
+    // --------------------------------
+
+    /**
+     * Retrieves all available priority levels.
+     * @return A list of priority levels.
+     */
     public List<String> getPriorityLevels() {
         if (priorityLevels.isEmpty()) {
             initializeDefaults(); // Ensure Default is always present
@@ -128,6 +190,11 @@ public class TaskManager {
         return new ArrayList<>(priorityLevels);
     }
 
+    /**
+     * Adds a new priority level.
+     * @param priority The priority level to add.
+     * @return True if successfully added, false if it already exists.
+     */
     public boolean addPriorityLevel(String priority) {
         if (priority != null && !priorityLevels.contains(priority)) {
             priorityLevels.add(priority);
@@ -137,6 +204,10 @@ public class TaskManager {
         return false;
     }
 
+    /**
+     * Deletes a priority level and updates tasks using it to "Default".
+     * @param priority The priority level to delete.
+     */
     public void deletePriorityLevel(String priority) {
         // Check if the priority is not one of the default priorities and exists in the priorityLevels list
         if (!"Default".equalsIgnoreCase(priority)) {
@@ -160,7 +231,14 @@ public class TaskManager {
     }
 
 
-
+    /**
+     * Renames an existing category in the task list.
+     * If the old category does not exist or the new category already exists, the operation fails.
+     *
+     * @param oldCategory The current name of the category to be renamed.
+     * @param newCategory The new name to be assigned to the category.
+     * @return {@code true} if the category was successfully renamed, {@code false} otherwise.
+     */
     public boolean renameCategory(String oldCategory, String newCategory) {
         if (oldCategory == null || newCategory == null || oldCategory.equals(newCategory)) {
             return false; // Invalid input or no change
@@ -189,7 +267,15 @@ public class TaskManager {
         return true;
     }
 
-    // In TaskManager.java
+    /**
+     * Renames an existing priority level in the task list.
+     * If the old priority does not exist or the new priority already exists, the operation fails.
+     * The default priority level cannot be renamed.
+     *
+     * @param oldPriority The current name of the priority level to be renamed.
+     * @param newPriority The new name to be assigned to the priority level.
+     * @return {@code true} if the priority was successfully renamed, {@code false} otherwise.
+     */
     public boolean renamePriority(String oldPriority, String newPriority) {
         if (oldPriority == null || newPriority == null || oldPriority.equals(newPriority)) {
             return false; // No change or invalid input.
@@ -215,7 +301,13 @@ public class TaskManager {
 
 
 
-    // JSON Data Handling
+    // --------------------------------
+    // DATA MANAGEMENT
+    // --------------------------------
+
+    /**
+     * Loads task data from a JSON file.
+     */
     public void loadData() {
         try {
             JSONHandler.DataWrapper data = JSONHandler.loadData();
@@ -230,6 +322,9 @@ public class TaskManager {
         }
     }
 
+    /**
+     * Saves task data to a JSON file.
+     */
     public void saveData() {
         try {
             JSONHandler.saveData(new JSONHandler.DataWrapper(tasks, categories, priorityLevels, reminders));
@@ -239,7 +334,10 @@ public class TaskManager {
         }
     }
 
-    // Generate unique ID for a new task
+    /**
+     * Generates a unique ID for a new task.
+     * @return A new unique task ID.
+     */
     public int generateTaskId() {
         return tasks.stream().mapToInt(Task::getId).max().orElse(0) + 1;
     }
