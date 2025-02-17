@@ -11,7 +11,7 @@
   }, {
     "id" : 5,
     "title" : "oslab",
-    "description" : "eor",
+    "description" : "filesystems",
     "category" : "NTUA",
     "priority" : "Default",
     "deadline" : [ 2022, 12, 7 ],
@@ -20,7 +20,7 @@
   }, {
     "id" : 6,
     "title" : "crypto",
-    "description" : "jkkjk",
+    "description" : "el gamal ",
     "category" : "Other",
     "priority" : "Default",
     "deadline" : [ 2025, 12, 7 ],
@@ -28,10 +28,10 @@
     "reminders" : [ ]
   }, {
     "id" : 7,
-    "title" : "again?",
-    "description" : "fgdg",
-    "category" : "Other",
-    "priority" : "Default",
+    "title" : "multimedia project",
+    "description" : "Java",
+    "category" : "NTUA",
+    "priority" : "High",
     "deadline" : [ 2025, 3, 5 ],
     "status" : "In Progress",
     "reminders" : [ {
@@ -41,7 +41,7 @@
       "reminderDate" : [ 2025, 2, 26 ]
     } ]
   } ],
-  "categories" : [ "Other", "NTUA" ],
-  "priorities" : [ "Default", "Low", "High" ],
+  "categories" : [ "Other", "NTUA", "Personal" ],
+  "priorities" : [ "Default", "Low", "High", "Medium" ],
   "reminders" : [ ]
 }
