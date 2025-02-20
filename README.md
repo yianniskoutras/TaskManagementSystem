@@ -4,7 +4,6 @@ MediaLab Assistant is a **JavaFX-based task management system** designed to help
 
 ## Table of Contents
 - [Features](#features)
-- [Project Structure](#project-structure)
 - [Installation & Setup](#installation--setup)
 - [Usage](#usage)
 - [Technologies Used](#technologies-used)
